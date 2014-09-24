@@ -1,0 +1,7 @@
+Current work:
+-persistent storage
+
+future work:
+-implementation as linked list / dynamic allocation
+-use person type to request diff data / use diff data types for diff types of people
+-try to create synced contact list between the two of us
