@@ -39,7 +39,7 @@ typedef struct ContactCard { //declaring use of ContactCard of type struct
 //Declare functions
 ////////////////////////////////////////////////////////////////////////
 
-string logFileName(void);
+void logFileName(string * logfilename);
 
 ////////////////////////////////////////////////////////////////////////
 //Main Function
@@ -48,47 +48,48 @@ string logFileName(void);
 int main() {
     //Creates file objects
     std::fstream readFile, tempFile, logFile; //Create file objects for existing data file, temporary data storage file, and current session log file
-    readFile.open ( “contactList_data.txt”, std::fstream::in ); //opens current data file for read only
-	tempFile.open ( “temp_datafile.txt” , std::fstream::trunc | std::fstream::out | std::fstream::in); //creates temp datafile to truncate (in case of existing file) and for write only
+    readFile.open( "contactList_data.txt", std::fstream::in ); //opens current data file for read only
+	tempFile.open( "temp_datafile.txt" , std::fstream::trunc | std::fstream::out | std::fstream::in); //creates temp datafile to truncate (in case of existing file) and for write only
     
     string logfilename;
     string *ptr;
     ptr = &logfilename;
     logFileName(ptr);
     
-    logFile.open ( logfilename , std::fstream::app | std::fstream::out ); //creates log file with logfilename (has current date and time, see function) for write, appending to end
+    logFile.open( logfilename , std::fstream::app | std::fstream::out ); //creates log file with logfilename (has current date and time, see function) for write, appending to end
     
     
-    if ( !readFile.is_open() ) {
+    if ( readFile.eof() ) { //Change to something that indicates whether file is empty
         std::cout << "No existing data was found. You may now add contacts to your list." << std::endl;
         logFile << "No data found. Starting new contact list.\n";
-        continue;
     }
     
     if ( !tempFile.is_open() || !logFile.is_open() ) {
         std::cout << "The temp or log file could not be opened. This may result in program errors.\nPlease quit and restart, and contact your bros James & Christian if the problem persists." << std::endl;
-        continue;
     }
     
     //Creates ints
-    int write_index, print_index, action_flag, cardArraySize; // declaring use of integers
-    cardArraySize = 12;
-    ContactCard contactCards[cardArraySize]; //declaring array of size cardArraySize (default 12)
+    int write_index, print_index, action_flag, cardArraySize, save_index; // declaring use of integers
+//    cardArraySize = 12;
+//    ContactCard contactCards[cardArraySize]; //declaring array of size cardArraySize (default 12)
+    ContactCard contactCards[12];
     action_flag = 0; //assigning value to int action_flag
     write_index = 0; //assigning value to int write_index
     print_index = 0; //assigning value to int print_index
     save_index = 0; //assigning value to int save_index
+    string junk; //intermediate for reading in numb as a string
     
     //Parses readFile for existing contact list
     if ( readFile.is_open() ) {
         while ( !readFile.eof() ) {
-            readFile.getline(contactCards[write_index].firstname , 256);
-            readFile.getline(contactCards[write_index].lastname , 256);
-            readFile.getline(contactCards[write_index].contact , 256);
-            readFile.getline(contactCards[write_index].residence , 256);
-            readFile.getline(contactCards[write_index].wnum , 256);
-            readFile.getline(contactCards[write_index].numb , 256);
-            readFile.getline(NULL , 256); //ignores newline char between contacts
+            std::getline(readFile , contactCards[write_index].firstname);
+            std::getline(readFile , contactCards[write_index].lastname);
+            std::getline(readFile , contactCards[write_index].contact);
+            std::getline(readFile , contactCards[write_index].residence);
+            std::getline(readFile , contactCards[write_index].wnum);
+            std::getline(readFile , junk);
+            contactCards[write_index].numb = atoi( junk.c_str() );
+            std::getline(readFile , junk); //junks newline char between contacts
             
             write_index++;
 
@@ -104,20 +105,22 @@ int main() {
         cout << "\nNo contacts in system, thanks for utilizing my services\n\n"; //JAMES - Let's put this in a function
         return 0;
     }
-    
-    while ( (action_flag == 1) && (write_index <= (cardArraySize - 1) ) ) { // declaring the conditions under the while loop will operate
+    cout << "Write index is " << write_index << endl;
+    while ( (action_flag == 1) && (write_index < cardArraySize ) ) { // declaring the conditions under the while loop will operate
+        cin.ignore(1, '\n');
         cout << "\nEnter first name: \n"; //storing name, contact, wnumb, role
-        cin >> contactCards[write_index].firstname;
+        std::getline(cin, contactCards[write_index].firstname, '\n');
         cout << "\nEnter last name: \n";
-        cin >> contactCards[write_index].lastname;
+        std::getline(cin, contactCards[write_index].lastname);
         cout << "Prefered contact: \n";
-        cin >> contactCards[write_index].contact;
+        std::getline(cin, contactCards[write_index].contact);
         cout << "Residence: \n";
-        cin >> contactCards[write_index].residence;
+        std::getline(cin, contactCards[write_index].residence);
         cout << "W Number: \n";
-        cin >> contactCards[write_index].wnum;
+        std::getline(cin, contactCards[write_index].wnum);
         cout << "\nEnter corresponding number\n1 Student\n2 Faculty\n3 Professor: "; //to bypass 3 seperate cases assign value to numb
-        cin >> contactCards[write_index].numb;
+        std::getline(cin, junk);
+        contactCards[write_index].numb = atoi( junk.c_str() );
         cout << "\n\nYou entered the following:\n\n"; //display the current entry
         cout << "Name: " << contactCards[write_index].firstname << " " << contactCards[write_index].lastname << "\n";
         cout << "Contact: " << contactCards[write_index].contact << "\n";
@@ -127,12 +130,16 @@ int main() {
         switch (contactCards[write_index].numb) {
             case 1:
                 cout << "Role: student\n\n";
+                break;
             case 2:
                 cout << "Role: faculty\n\n";
+                break;
             case 3:
                 cout << "Role: professor\n\n";
+                break;
         }
         
+        logFile << "New contact created successfully. Contact first name is " << contactCards[write_index].firstname << ".\n";
         write_index++;
         cout << "Any key to display contacts\nOr enter 1 to create new contact: "; // new contact or display and exit
         cin >> action_flag;
@@ -164,9 +171,9 @@ int main() {
     if ( !tempFile.is_open() ) {
         std::cout << "Unable to open temp file, no data will be saved this session" << std::endl; //Make function from this when more frequent data saving is implemented
     } else {
-        for (save_index = 0; contactCards[save_index].firstname; save_index++) {
+        for (save_index = 0; !contactCards[save_index].firstname.empty(); save_index++) {
             
-            tempFile >> contactCards[save_index].firstname << "\n";
+            cout << "Copying contact to tempfile" << endl;
             tempFile << contactCards[print_index].firstname << "\n";
             tempFile << contactCards[print_index].lastname << "\n";
             tempFile << contactCards[print_index].contact << "\n";
@@ -180,14 +187,14 @@ int main() {
     
     //Copy temp file into readFile (including reopening readfile)
     fstream saveFile;
-    saveFile.open ( "contactList_data.txt" , std::fstream::out | std::fstream::trunc );
+    saveFile.open( "contactList_data.txt" , std::fstream::out | std::fstream::trunc );
     
-    tempFile >> saveFile.rdbuf();
-    logFile >> "Temp file copied to contactList_data.txt.\n";
+    tempFile << saveFile.rdbuf();
+    logFile << "Temp file copied to contactList_data.txt.\n";
     
     tempFile.close();
     saveFile.close();
-    logFile >> "Program complete. Return code 0."
+    logFile << "Program complete. Return code 0.";
     
     return 0;
 } //end of main
@@ -202,8 +209,9 @@ void logFileName(string * logfilename) {
     
     time (&rawtime);
     timeinfo = localtime (&rawtime);
-    logfilename = asctime(timeinfo));
-    logfilename.insert(0, "ContactList Log "); //creates name for log file with the current date and time for easy reference
+    *logfilename = asctime(timeinfo);
+    logfilename->insert(0, "ContactList Log "); //creates name for log file with the current date and time for easy reference
+    logfilename->append(".txt");
     
     return;
 }

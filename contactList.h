@@ -6,13 +6,9 @@
 //
 //
 
-#ifndef ____contactList__
-#define ____contactList__
 
 #include <iostream>
 #include <time.h>
 #include <fstream>
 #include <string>
-
-
-#endif /* defined(____contactList__) */
+#include <stdlib.h> //for atoi (string to integer)
