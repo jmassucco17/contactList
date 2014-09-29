@@ -65,7 +65,7 @@ int main() {
     }
     
     if ( !tempFile.is_open() || !logFile.is_open() ) {
-        std::cout << "The temp or log file could not be opened. This may result in program errors.\nPlease quit and restart, and contact your bros James & Christian if the problem persists." << std::endl;
+        cout << "The temp or log file could not be opened. This may result in program errors.\nPlease quit and restart, and contact your bros James & Christian if the problem persists." << endl;
     }
     
     //Creates ints
@@ -80,8 +80,9 @@ int main() {
     string junk; //intermediate for reading in numb as a string
     
     //Parses readFile for existing contact list
-    if ( readFile.is_open() ) {
+    if ( !readFile.eof() ) {
         while ( !readFile.eof() ) {
+            cout << "CHECK 1 2" << endl;
             std::getline(readFile , contactCards[write_index].firstname);
             std::getline(readFile , contactCards[write_index].lastname);
             std::getline(readFile , contactCards[write_index].contact);
@@ -98,7 +99,10 @@ int main() {
         readFile.close();
     }
     
-    
+///////////////////////////////////////////////////////////////////////////////
+    //BEGIN UI
+///////////////////////////////////////////////////////////////////////////////
+/*
     cout << "Any letter to display contacts\n0 to exit module\n\nOr enter 1 to create contact: ";
     cin >> action_flag;
     if (action_flag == 0){
@@ -198,7 +202,7 @@ int main() {
     
     return 0;
 } //end of main
-
+*/
 ////////////////////////////////////////////////////////////////////////
 //Definition of logFileName
 ////////////////////////////////////////////////////////////////////////

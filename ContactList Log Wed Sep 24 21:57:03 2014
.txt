@@ -1,2 +1,0 @@
-Temp file copied to contactList_data.txt.
-Program complete. Return code 0.
